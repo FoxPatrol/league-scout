@@ -80,12 +80,13 @@ router
     client.close();
 
     res.send(leagueData)
-  } catch (e) {
+  } catch (e: any) {
     // Close the connection
     client.close();
 
-    console.error('Error:', e);
-    res.status(500).send('Error occurred while fetching summoner data.');
+    const statusCode = e.response ? e.response.status : 500;
+    console.error('Error ' + statusCode + ' occurred while fetching summoner data.');
+    res.status(statusCode).send('Error ' + statusCode + ' occurred while fetching summoner data.');
   }
 });
 
