@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 
-export default function SummonerIcon({ icon }: { icon?: number }) {
+export enum SizeType {
+  Big,
+  Medium,
+  Small
+}
+
+export default function SummonerIcon({ icon, size }: { icon?: number, size?: SizeType }) {
   const [image, setImage] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -10,14 +16,19 @@ export default function SummonerIcon({ icon }: { icon?: number }) {
       icon = 0;
     }
 
-    import(`../../assets/profileicon/${icon}.png`)
-      .then((imageModule) => {
+    import(`../../assets/profileicon/${icon}.png`).then((imageModule) => {
         if (isMounted) {
           setImage(imageModule.default);
         }
       })
       .catch((error) => {
-        console.error('Error loading summoner icon:', error);
+        console.error('Error loading summoner icon, using default.');
+
+        import(`../../assets/profileicon/0.png`).then((imageModule) => {
+          if (isMounted) {
+            setImage(imageModule.default);
+          }
+        })
       });
 
     return () => {
@@ -25,11 +36,25 @@ export default function SummonerIcon({ icon }: { icon?: number }) {
     };
   }, [icon]);
 
+  let classNameImageSize = '';
+  switch (size) {
+    case SizeType.Small:
+      classNameImageSize = 'w-12 h-12';
+      break;
+    case SizeType.Medium:
+      classNameImageSize = 'w-16 h-16';
+      break;
+    case SizeType.Big:
+    default:
+      classNameImageSize = 'w-24 h-24';
+      break;
+  }
+
   return (
     <img
       src={image}
       alt="Summoner Icon"
-      className="rounded-full w-24 h-24 sm:w-40 sm:h-40 transform hover:rotate-12 hover:scale-150 duration-300"
+      className={`rounded-full ${classNameImageSize} transform hover:rotate-12 hover:scale-150 duration-300`}
     />
   );
 }

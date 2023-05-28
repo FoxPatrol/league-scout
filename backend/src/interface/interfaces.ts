@@ -46,7 +46,7 @@ export interface MiniSeriesDTO {
   wins: number
 }
 
-export interface LeagueData {
+export interface SummonerData {
   _id: ObjectId | undefined;
   timestamp: Date | undefined;
   summonerDto: SummonerDTO;

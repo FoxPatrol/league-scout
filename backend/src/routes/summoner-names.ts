@@ -1,6 +1,6 @@
-import { LeagueData, SummonerDTO } from '../interface/interfaces';
+import { SummonerData, SummonerDTO } from '../interface/interfaces';
 import express, { Request, Response, Router } from 'express';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 
 import dotenv from 'dotenv';
 import { MongoClient } from 'mongodb';
@@ -10,7 +10,7 @@ const riotEndpointSummonerByName = process.env.RIOT_ENDPOINT_SUMMONER_BY_NAME;
 const riotEndpointRankBySummoner = process.env.RIOT_ENDPOINT_RANK_BY_SUMMONER;
 const mongoUri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DATABASE;
-const collectionName = process.env.MONGODB_COLLECTION;
+const collectionName = process.env.MONGODB_COLLECTION_SUMMONERS;
 
 const router: Router = express.Router();
 
@@ -20,6 +20,7 @@ const client = new MongoClient(mongoUri!);
 // Define your routes
 // Get all summoner names
 router.get('/summoner-names', async (req: Request, res: Response) => {
+  console.log("get /summoner-names")
   try {
     // Get the database and collection
     const db = client.db(dbName!);
@@ -27,47 +28,59 @@ router.get('/summoner-names', async (req: Request, res: Response) => {
     await client.connect();
 
     // Fetch all summoner names from the collection
-    const summonerNames = await collection.distinct('summonerDto.name');
+    const summonerDtos = await collection.distinct('summonerDto');
 
     // Close the connection
     client.close();
 
-    res.send(summonerNames);
+    res.send(summonerDtos);
   } catch (error) {
     // Close the connection
     client.close();
 
-    console.error('Error occurred while fetching summoner names:', error);
-    res.status(500).send('Error occurred while fetching summoner names.');
+    console.error('Error occurred while fetching summonerDtos:', error);
+    res.status(500).send('Error occurred while fetching summonerDtos.');
   }
 });
 
 // Get data specific to a summoner name
 router.get('/summoner-names/:name', async (req: Request, res: Response) => {
   const summonerName = req.params.name; // Get the summoner name from the route parameter
-  console.log("summonerName:", summonerName)
+  console.log("get /summoner-names/" + summonerName)
 
+  const db = client.db(dbName!);
+  const collection = db.collection(collectionName!);
+
+  // Look for summoner name in database
   try {
+    console.log("Looking for " + summonerName + " in database.")
     // Get the database and collection
-    const db = client.db(dbName!);
-    const collection = db.collection(collectionName!);
     await client.connect();
 
     // Check if summoner data exists in the database
-    const existingSummoner = await collection.findOne({ 'summonerDto.name': summonerName });
+    const existingSummoner = await collection.findOne({ 'summonerDto.name': { $regex: new RegExp(`^${summonerName}$`, 'i') } });
 
     // If exist, send data from database
     if (existingSummoner) {
       console.log("Found " + summonerName + " in database.")
 
-      // Close the connection
       client.close();
-
       res.send(existingSummoner)
       return;
     }
 
-    console.log("Not found " + summonerName + " in database. Fetching from API.")
+    // does not exist in database, proceed to API request
+    console.log("Did not find " + summonerName + " in database.")
+    client.close();
+
+  } catch (error) {
+    console.error("Error getting data from database", error)
+    client.close();
+  }
+
+  // Look for summoner name in API
+  try {
+    console.log("Looking for " + summonerName + " in API.")
     const response1 = await axios.get(`${riotEndpointSummonerByName}${summonerName}`, {
       headers: {
         'X-Riot-Token': riotApiKey
@@ -82,7 +95,7 @@ router.get('/summoner-names/:name', async (req: Request, res: Response) => {
     });
     const leagueEntryData = response2.data;
 
-    const leagueData: LeagueData = {
+    const sData: SummonerData = {
       //@ts-ignore
       _id: summonerData.id,
       timestamp: new Date(),
@@ -90,28 +103,34 @@ router.get('/summoner-names/:name', async (req: Request, res: Response) => {
       leagueEntryDto: leagueEntryData
     }
 
-    // Insert new summoner data into the collection
-    const confirmation = await collection.insertOne(leagueData);
-    if(confirmation.acknowledged)
-    {
-      console.log('Summoner ' + summonerName + ' inserted successfully in database.');
-    }
-    else
-    {
-      console.error('Error inserting ' + summonerName + ' in database.');
+    try {
+      // Insert new summoner data into the collection
+      await client.connect();
+      const confirmation = await collection.insertOne(sData);
+      if(confirmation.acknowledged)
+      {
+        console.log('Summoner ' + summonerName + ' inserted successfully in database.');
+      }
+      else
+      {
+        console.error(summonerName + ' could not be inserted in database.');
+      }
+      client.close();
+    } catch (error) {
+      console.error('Error inserting ' + summonerName + ' in database.', error);
+      client.close();
     }
 
-    // Close the connection
-    client.close();
+    // Send data gathered from API
+    res.send(sData)
+    return;
 
-    res.send(leagueData)
   } catch (e: any) {
-    // Close the connection
-    client.close();
-
+    // Failed to retrieve any data from both database and API
     const statusCode = e.response ? e.response.status : 500;
     console.error('Error ' + statusCode + ' occurred while fetching summoner data.');
     res.status(statusCode).send('Error ' + statusCode + ' occurred while fetching summoner data.');
+    return;
   }
 });
 

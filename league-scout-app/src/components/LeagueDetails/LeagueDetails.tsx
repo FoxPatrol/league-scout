@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { LeagueData } from '../../../../backend/src/interface/interfaces';
-import SummonerIcon from '../SummonerIcon/SummonerIcon';
+import { SummonerData } from '../../../../backend/src/interface/interfaces';
+import SummonerIcon, { SizeType } from '../SummonerIcon/SummonerIcon';
 import RankInformation from '../RankInformation/RankInformation';
 import axios from 'axios';
 
@@ -8,7 +8,7 @@ const baseUrl = 'http://localhost:3000/';
 const getSummonerNameUrl = baseUrl + 'summoner-names/';
 
 export default function LeagueDetails() {
-  const [data, setData] = useState<LeagueData>();
+  const [data, setData] = useState<SummonerData>();
   const [solo, setSolo] = useState<any>();
   const [flex, setFlex] = useState<any>();
 
@@ -50,7 +50,7 @@ export default function LeagueDetails() {
     })
   }, [])
 
-  async function getData(summoner: string): Promise<LeagueData | undefined> {
+  async function getData(summoner: string): Promise<SummonerData | undefined> {
     try {
       const response = await axios.get(`${getSummonerNameUrl}${summoner}`);
       const data = response.data;
@@ -70,7 +70,7 @@ export default function LeagueDetails() {
           // Summoner icon and level column
         }
         <div className='content-center min-w-fit p-2'>
-          <SummonerIcon icon={data?.summonerDto.profileIconId}/>
+          <SummonerIcon icon={data?.summonerDto.profileIconId} size={SizeType.Big}/>
           <div className='flex flex-col p-1'>
             <div className='flex-1'></div>
             <div className='flex-1 text-xl'>{data?.summonerDto.summonerLevel}</div>
