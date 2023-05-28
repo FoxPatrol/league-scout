@@ -18,8 +18,32 @@ const router: Router = express.Router();
 const client = new MongoClient(mongoUri!);
 
 // Define your routes
-router
-.get('/summoner-name/:name', async (req: Request, res: Response) => {
+// Get all summoner names
+router.get('/summoner-names', async (req: Request, res: Response) => {
+  try {
+    // Get the database and collection
+    const db = client.db(dbName!);
+    const collection = db.collection(collectionName!);
+    await client.connect();
+
+    // Fetch all summoner names from the collection
+    const summonerNames = await collection.distinct('summonerDto.name');
+
+    // Close the connection
+    client.close();
+
+    res.send(summonerNames);
+  } catch (error) {
+    // Close the connection
+    client.close();
+
+    console.error('Error occurred while fetching summoner names:', error);
+    res.status(500).send('Error occurred while fetching summoner names.');
+  }
+});
+
+// Get data specific to a summoner name
+router.get('/summoner-names/:name', async (req: Request, res: Response) => {
   const summonerName = req.params.name; // Get the summoner name from the route parameter
   console.log("summonerName:", summonerName)
 
@@ -59,6 +83,7 @@ router
     const leagueEntryData = response2.data;
 
     const leagueData: LeagueData = {
+      //@ts-ignore
       _id: summonerData.id,
       timestamp: new Date(),
       summonerDto: summonerData,
