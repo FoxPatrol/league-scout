@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 
+const getSummonerNameUrl = 'http://localhost:3000/summoner-name/';
+
 export default function SearchBar() {
   const [input, setInput] = useState('');
 
@@ -16,7 +18,7 @@ export default function SearchBar() {
     }
     console.log(input)
 
-    fetch(`http://localhost:3000/summoner-name/${input}`)
+    fetch(`${getSummonerNameUrl}${input}`)
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
