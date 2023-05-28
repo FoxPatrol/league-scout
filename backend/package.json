@@ -1,0 +1,30 @@
+{
+  "name": "backend",
+  "version": "0.0.0",
+  "description": "backend of league-scout",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "start-prod": "node dist/index.js",
+    "build": "tsc",
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\"",
+    "test": "test"
+  },
+  "author": "Jose",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^20.2.5",
+    "axios": "^1.4.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongodb": "^5.5.0",
+    "mongoose": "^7.2.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.13",
+    "@types/express": "^4.17.17"
+  }
+}
