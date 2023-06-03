@@ -6,25 +6,25 @@ export enum SizeType {
   Small
 }
 
-export default function SummonerIcon({ icon, size }: { icon?: number, size?: SizeType }) {
+export default function ChampionIcon({ champion, size }: { champion?: string, size?: SizeType }) {
   const [image, setImage] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     let isMounted = true;
 
-    if (!icon) {
-      icon = 0;
+    if (!champion) {
+      return;
     }
 
-    import(`../../assets/profile/${icon}.png`).then((imageModule) => {
+    import(`../../assets/champion/${champion}.png`).then((imageModule) => {
         if (isMounted) {
           setImage(imageModule.default);
         }
       })
       .catch((error) => {
-        console.error('Error loading summoner icon, using default.');
+        console.error('Error loading champion icon. Using amumu crying');
 
-        import(`../../assets/profile/0.png`).then((imageModule) => {
+        import(`../../assets/champion/Amumu.png`).then((imageModule) => {
           if (isMounted) {
             setImage(imageModule.default);
           }
@@ -34,12 +34,12 @@ export default function SummonerIcon({ icon, size }: { icon?: number, size?: Siz
     return () => {
       isMounted = false;
     };
-  }, [icon]);
+  }, [champion]);
 
   let classNameImageSize = '';
   switch (size) {
     case SizeType.Small:
-      classNameImageSize = 'w-12 h-12';
+      classNameImageSize = 'w-8 h-8';
       break;
     case SizeType.Medium:
       classNameImageSize = 'w-16 h-16';
@@ -53,8 +53,8 @@ export default function SummonerIcon({ icon, size }: { icon?: number, size?: Siz
   return (
     <img
       src={image}
-      alt="Summoner Icon"
-      className={`rounded-full ${classNameImageSize} transform hover:rotate-12 hover:scale-150 duration-300`}
+      alt="Champion Icon"
+      className={`${classNameImageSize} rounded-full`}
     />
   );
 }

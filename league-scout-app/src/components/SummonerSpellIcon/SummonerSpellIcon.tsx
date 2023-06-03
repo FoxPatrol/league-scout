@@ -6,25 +6,25 @@ export enum SizeType {
   Small
 }
 
-export default function SummonerIcon({ icon, size }: { icon?: number, size?: SizeType }) {
+export default function SummonerSpellIcon({ summonerSpell, size }: { summonerSpell?: number, size?: SizeType }) {
   const [image, setImage] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     let isMounted = true;
 
-    if (!icon) {
-      icon = 0;
+    if (summonerSpell === undefined) {
+      return;
     }
 
-    import(`../../assets/profile/${icon}.png`).then((imageModule) => {
+    import(`../../assets/summoner-spell/${summonerSpell}.png`).then((imageModule) => {
         if (isMounted) {
           setImage(imageModule.default);
         }
       })
       .catch((error) => {
-        console.error('Error loading summoner icon, using default.');
+        console.error('Error loading item icon. Using empty icon');
 
-        import(`../../assets/profile/0.png`).then((imageModule) => {
+        import('../../assets/summoner-spell/1.png').then((imageModule) => {
           if (isMounted) {
             setImage(imageModule.default);
           }
@@ -34,27 +34,27 @@ export default function SummonerIcon({ icon, size }: { icon?: number, size?: Siz
     return () => {
       isMounted = false;
     };
-  }, [icon]);
+  }, [summonerSpell]);
 
   let classNameImageSize = '';
   switch (size) {
     case SizeType.Small:
-      classNameImageSize = 'w-12 h-12';
+      classNameImageSize = 'w-6 h-6';
       break;
     case SizeType.Medium:
-      classNameImageSize = 'w-16 h-16';
+      classNameImageSize = 'w-12 h-12';
       break;
     case SizeType.Big:
     default:
-      classNameImageSize = 'w-24 h-24';
+      classNameImageSize = 'w-20 h-20';
       break;
   }
 
   return (
     <img
       src={image}
-      alt="Summoner Icon"
-      className={`rounded-full ${classNameImageSize} transform hover:rotate-12 hover:scale-150 duration-300`}
+      alt="Summoner Spell Icon"
+      className={`${classNameImageSize} rounded-md`}
     />
   );
 }

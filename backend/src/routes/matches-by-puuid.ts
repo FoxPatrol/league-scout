@@ -1,10 +1,11 @@
 import { SummonersMatchesRelationsData } from '../interface/interfaces';
 import express, { Request, Response, Router } from 'express';
 import axios from 'axios';
-
 import dotenv from 'dotenv';
 import { MongoClient } from 'mongodb';
+
 dotenv.config(); // Load environment variables from .env file
+
 const riotApiKey = process.env.RIOT_API_KEY;
 const riotEndpointMatchesByPuuidPreProcess = process.env.RIOT_ENDPOINT_MATCHES_BY_PUUID;
 const mongoUri = process.env.MONGODB_URI;
@@ -13,8 +14,8 @@ const collectionSummonersMatchesRelations = process.env.MONGODB_COLLECTION_SUMMO
 
 const router: Router = express.Router();
 
-// Create a new MongoClient
-const client = new MongoClient(mongoUri!);
+// Create a new MongoClient instance
+const client = new MongoClient(mongoUri!, { useUnifiedTopology: true });
 
 // Define your routes
 
@@ -24,80 +25,59 @@ router.get('/matches/by-puuid/:puuid', async (req: Request, res: Response) => {
   console.log("get /matches/by-puuid/" + puuid)
   const riotEndpointMatchesByPuuid = riotEndpointMatchesByPuuidPreProcess?.replace("{puuid}", puuid);
 
-  const db = client.db(dbName!);
-  const collection = db.collection(collectionSummonersMatchesRelations!);
-
-  // Look for summoner puuid in database
   try {
-    console.log("Looking for " + puuid + " in database.")
-    // Get the database and collection
+    // Connect to the MongoDB database
     await client.connect();
 
-    // Check if summoner data exists in the database
-    //@ts-ignore
-    const existingMatchesData = await collection.findOne({'_id': puuid});
+    const db = client.db(dbName!);
+    const collection = db.collection(collectionSummonersMatchesRelations!);
 
-    // If exist, send data from database
+    // Look for summoner puuid in the database
+    const existingMatchesData = await collection.findOne({ _id: puuid });
+
     if (existingMatchesData) {
-      console.log("Found " + puuid + " in database.")
+      console.log("Found " + puuid + " in the database.");
+      res.send(existingMatchesData);
+    } else {
+      console.log("Did not find " + puuid + " in the database.");
 
-      client.close();
-      res.send(existingMatchesData)
-      return;
+      // Look for matches by puuid in the API
+      try {
+        console.log("Looking for matches by puuid " + puuid + " in the API.");
+        const response = await axios.get(`${riotEndpointMatchesByPuuid}`, {
+          headers: {
+            'X-Riot-Token': riotApiKey
+          }
+        });
+
+        const matchesData: SummonersMatchesRelationsData = {
+          //@ts-ignore
+          _id: puuid,
+          timestamp: new Date(),
+          matches: response.data
+        };
+
+        // Insert new data into the collection
+        const confirmation = await collection.insertOne(matchesData);
+        if (confirmation.acknowledged) {
+          console.log('Matches data related to ' + puuid + ' inserted successfully in the database.');
+        } else {
+          console.error(puuid + ' could not be inserted in the database.');
+        }
+
+        // Send data gathered from the API
+        res.send(matchesData);
+      } catch (error) {
+        console.error('Error inserting ' + puuid + ' in the database.', error);
+        res.status(500).send('Error occurred while fetching matches data.');
+      }
     }
-
-    // does not exist in database, proceed to API request
-    console.log("Did not find " + puuid + " in database.")
-    client.close();
-
   } catch (error) {
-    console.error("Error getting data from database", error)
-    client.close();
-  }
-
-  // Look for matches by puuid in API
-  try {
-    console.log("Looking for matches by puuid " + puuid + " in API.")
-    const response = await axios.get(`${riotEndpointMatchesByPuuid}`, {
-      headers: {
-        'X-Riot-Token': riotApiKey
-      }
-    });
-    const matchesData: SummonersMatchesRelationsData = {
-      //@ts-ignore
-      _id: puuid,
-      timestamp: new Date(),
-      matches: response.data
-    }
-
-    try {
-      // Insert new data into the collection
-      await client.connect();
-      const confirmation = await collection.insertOne(matchesData);
-      if(confirmation.acknowledged)
-      {
-        console.log('Matches data related to ' + puuid + ' inserted successfully in database.');
-      }
-      else
-      {
-        console.error(puuid + ' could not be inserted in database.');
-      }
-      client.close();
-    } catch (error) {
-      console.error('Error inserting ' + puuid + ' in database.', error);
-      client.close();
-    }
-
-    // Send data gathered from API
-    res.send(matchesData)
-    return;
-
-  } catch (e: any) {
-    // Failed to retrieve any data from both database and API
-    const statusCode = e.response ? e.response.status : 500;
-    console.error('Error ' + statusCode + ' occurred while fetching matches data.');
-    res.status(statusCode).send('Error ' + statusCode + ' occurred while fetching matches data.');
-    return;
+    console.error("Error accessing the database", error);
+    res.status(500).send('Error occurred while fetching matches data.');
+  } finally {
+    // Close the MongoDB connection
+    //client.close();
   }
 });
 

@@ -10,7 +10,7 @@ export default function RankIcon({ icon }: { icon?: string }) {
       icon = 'provisional';
     }
 
-    import(`../../assets/base-icons/${icon.toLowerCase()}.png`)
+    import(`../../assets/rank/${icon.toLowerCase()}.png`)
       .then((imageModule) => {
         if (isMounted) {
           setImage(imageModule.default);
