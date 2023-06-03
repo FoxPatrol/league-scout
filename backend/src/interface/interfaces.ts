@@ -52,3 +52,16 @@ export interface SummonerData {
   summonerDto: SummonerDTO;
   leagueEntryDto: LeagueEntryDTO[];
 };
+
+export interface SummonersMatchesRelationsData {
+  _id: ObjectId | undefined;  // puuid
+  timestamp: Date | undefined;
+  matches: string[];
+};
+
+export interface MatchDTO {
+  _id: ObjectId | undefined;  // matchId
+  timestamp: Date | undefined;
+  metadata: any;
+  info: any;
+};

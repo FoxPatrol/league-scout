@@ -1,13 +1,13 @@
 import { SummonerData, SummonerDTO } from '../interface/interfaces';
 import express, { Request, Response, Router } from 'express';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 
 import dotenv from 'dotenv';
 import { MongoClient } from 'mongodb';
 dotenv.config(); // Load environment variables from .env file
 const riotApiKey = process.env.RIOT_API_KEY;
-const riotEndpointSummonerByName = process.env.RIOT_ENDPOINT_SUMMONER_BY_NAME;
-const riotEndpointRankBySummoner = process.env.RIOT_ENDPOINT_RANK_BY_SUMMONER;
+const riotEndpointSummonerByNamePreProcess = process.env.RIOT_ENDPOINT_SUMMONER_BY_NAME;
+const riotEndpointRankBySummonerPreProcess = process.env.RIOT_ENDPOINT_RANK_BY_SUMMONER;
 const mongoUri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DATABASE;
 const collectionName = process.env.MONGODB_COLLECTION_SUMMONERS;
@@ -47,6 +47,7 @@ router.get('/summoner-names', async (req: Request, res: Response) => {
 router.get('/summoner-names/:name', async (req: Request, res: Response) => {
   const summonerName = req.params.name; // Get the summoner name from the route parameter
   console.log("get /summoner-names/" + summonerName)
+  const riotEndpointSummonerByName = riotEndpointSummonerByNamePreProcess?.replace("{summonerName}", summonerName);
 
   const db = client.db(dbName!);
   const collection = db.collection(collectionName!);
@@ -81,14 +82,15 @@ router.get('/summoner-names/:name', async (req: Request, res: Response) => {
   // Look for summoner name in API
   try {
     console.log("Looking for " + summonerName + " in API.")
-    const response1 = await axios.get(`${riotEndpointSummonerByName}${summonerName}`, {
+    const response1 = await axios.get(`${riotEndpointSummonerByName}`, {
       headers: {
         'X-Riot-Token': riotApiKey
       }
     });
     const summonerData: SummonerDTO = response1.data
+    const riotEndpointRankBySummoner = riotEndpointRankBySummonerPreProcess?.replace("{puuid}", summonerData.id);
 
-    const response2 = await axios.get(`${riotEndpointRankBySummoner}${summonerData.id}`, {
+    const response2 = await axios.get(`${riotEndpointRankBySummoner}`, {
       headers: {
         'X-Riot-Token': riotApiKey
       }
@@ -97,7 +99,7 @@ router.get('/summoner-names/:name', async (req: Request, res: Response) => {
 
     const sData: SummonerData = {
       //@ts-ignore
-      _id: summonerData.id,
+      _id: summonerData.puuid,
       timestamp: new Date(),
       summonerDto: summonerData,
       leagueEntryDto: leagueEntryData
