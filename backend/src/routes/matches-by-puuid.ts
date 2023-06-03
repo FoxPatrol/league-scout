@@ -15,7 +15,7 @@ const collectionSummonersMatchesRelations = process.env.MONGODB_COLLECTION_SUMMO
 const router: Router = express.Router();
 
 // Create a new MongoClient instance
-const client = new MongoClient(mongoUri!, { useUnifiedTopology: true });
+const client = new MongoClient(mongoUri!);
 
 // Define your routes
 
@@ -33,6 +33,7 @@ router.get('/matches/by-puuid/:puuid', async (req: Request, res: Response) => {
     const collection = db.collection(collectionSummonersMatchesRelations!);
 
     // Look for summoner puuid in the database
+    //@ts-ignore
     const existingMatchesData = await collection.findOne({ _id: puuid });
 
     if (existingMatchesData) {
