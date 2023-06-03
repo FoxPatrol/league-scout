@@ -16,7 +16,7 @@ export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: 
       <div className='p-1 w-1/6 min-w-fit'>
         <p className='text-lg'>{Math.floor(matchInfo.gameDuration / 60)}:{String(Math.round(matchInfo.gameDuration % 60)).padStart(2, '0')}</p>
         <p className={"font-bold text-3xl" + (mainPlayer.win ? " text-green-700" : " text-red-700")}>{mainPlayer.win ? "Victory" : "Defeat"}</p>
-        <p className='text-sm text-gray-400'>{timeDiffInMinutes > 60*24*2 ? Math.floor(timeDiffInMinutes/60/24) + "days ago" :
+        <p className='text-sm text-gray-400'>{timeDiffInMinutes > 60*24*2 ? Math.floor(timeDiffInMinutes/60/24) + " days ago" :
             timeDiffInMinutes > 60*24 ? "Yesterday":
             Math.floor(timeDiffInMinutes / 60) + "h" + String(Math.round(timeDiffInMinutes % 60)).padStart(2, '0') + "m ago"}</p>
       </div>
