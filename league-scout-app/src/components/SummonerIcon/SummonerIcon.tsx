@@ -24,7 +24,7 @@ export default function SummonerIcon({ icon, size }: { icon?: number, size?: Siz
       .catch((error) => {
         console.error('Error loading summoner icon, using default.');
 
-        import(`../../assets/profile/0.png`).then((imageModule) => {
+        import('../../assets/profile/0.png').then((imageModule) => {
           if (isMounted) {
             setImage(imageModule.default);
           }

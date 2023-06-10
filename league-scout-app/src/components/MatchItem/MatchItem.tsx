@@ -10,10 +10,10 @@ export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: 
   const timeDiffInMinutes = timeDiffInMilliseconds / 1000 / 60;
 
   return (
-    <div className="border border-gray-300 flex items-center">
+    <div className="border border-gray-300 flex items-center gap-1">
 
       {/* Match info like when it was played and victory/defeat */}
-      <div className='p-1 w-1/6 min-w-fit'>
+      <div className='p-1 w-1/6 min-w-[120px]'>
         <p className='text-lg'>{Math.floor(matchInfo.gameDuration / 60)}:{String(Math.round(matchInfo.gameDuration % 60)).padStart(2, '0')}</p>
         <p className={"font-bold text-3xl" + (mainPlayer.win ? " text-green-700" : " text-red-700")}>{mainPlayer.win ? "Victory" : "Defeat"}</p>
         <p className='text-sm text-gray-400'>{timeDiffInMinutes > 60*24*2 ? Math.floor(timeDiffInMinutes/60/24) + " days ago" :
@@ -22,7 +22,7 @@ export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: 
       </div>
 
       {/* Summoner info like champion played, kda, items, runes, summoner spells */}
-      <div className='p-1 w-1/6 min-w-fit'>
+      <div className='p-1 w-1/6 min-w-[240px]'>
 
         <div className='flex items-center justify-center'>
           <div className='flex items-center pb-2 pe-2'>
@@ -37,19 +37,19 @@ export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: 
 
             <div>
               {/* Runes */}
-              <SummonerSpellIcon summonerSpell={0} size={SizeType.Small}/>
-              <SummonerSpellIcon summonerSpell={0} size={SizeType.Small}/>
+              <SummonerSpellIcon summonerSpell={1} size={SizeType.Small}/>
+              <SummonerSpellIcon summonerSpell={1} size={SizeType.Small}/>
             </div>
           </div>
 
           <div className='flex'>
             {/* KDA */}
             <div className='text-xl'>
-            <span className='font-bold'>{mainPlayer.kills}</span>
+            <span className='font-bold text-green-700'>{mainPlayer.kills}</span>
             <span> / </span>
-            <span className='font-bold'>{mainPlayer.deaths}</span>
+            <span className='font-bold text-red-700'>{mainPlayer.deaths}</span>
             <span> / </span>
-            <span className='font-bold'>{mainPlayer.assists}</span>
+            <span className='font-bold text-orange-600'>{mainPlayer.assists}</span>
             </div>
           </div>
         </div>
@@ -68,19 +68,19 @@ export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: 
 
 
       {/* Team info like composition, names of teammates */}
-      <div className="flex w-2/3 min-w-fit">
-        <div className="w-1/2 pr-2">
+      <div className="p-1 flex w-2/3">
+        <div className="w-1/2 pr-2 min-w-[120px]">
           {matchInfo.participants.slice(0, 5).map((player: any, index: number) => (
             <div key={index} className="flex items-center">
               <ChampionIcon champion={player.championName} size={SizeType.Small} />
-              <span className="ml-2 overflow-hidden overflow-ellipsis">{player.summonerName}</span>
+              <span className="ml-2 overflow-hidden overflow-ellipsis whitespace-nowrap">{player.summonerName}</span>
             </div>
           ))}
         </div>
-        <div className="w-1/2 pl-2 border-l">
+        <div className="w-1/2 pl-2 border-l min-w-[120px]">
           {matchInfo.participants.slice(5, 10).map((player: any, index: number) => (
             <div key={index} className="flex items-center justify-end">
-              <span className="mr-2 overflow-hidden overflow-ellipsis">{player.summonerName}</span>
+              <span className="mr-2 overflow-hidden overflow-ellipsis whitespace-nowrap">{player.summonerName}</span>
               <ChampionIcon champion={player.championName} size={SizeType.Small} />
             </div>
           ))}

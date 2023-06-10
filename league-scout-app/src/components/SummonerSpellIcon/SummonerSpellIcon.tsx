@@ -22,7 +22,7 @@ export default function SummonerSpellIcon({ summonerSpell, size }: { summonerSpe
         }
       })
       .catch((error) => {
-        console.error('Error loading item icon. Using empty icon');
+        console.error('Error loading summoner spell icon. Desired summoner spell:', summonerSpell);
 
         import('../../assets/summoner-spell/1.png').then((imageModule) => {
           if (isMounted) {

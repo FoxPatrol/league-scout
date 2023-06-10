@@ -22,9 +22,9 @@ export default function ChampionIcon({ champion, size }: { champion?: string, si
         }
       })
       .catch((error) => {
-        console.error('Error loading champion icon. Using amumu crying');
+        console.error('Error loading champion icon. Using amumu crying. Desired icon:', champion);
 
-        import(`../../assets/champion/Amumu.png`).then((imageModule) => {
+        import('../../assets/champion/Amumu.png').then((imageModule) => {
           if (isMounted) {
             setImage(imageModule.default);
           }

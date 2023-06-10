@@ -34,7 +34,7 @@ router.get('/matches/by-puuid/:puuid', async (req: Request, res: Response) => {
 
     // Look for summoner puuid in the database
     //@ts-ignore
-    const existingMatchesData = await collection.findOne({ _id: puuid });
+    const existingMatchesData = undefined//await collection.findOne({ _id: puuid });
 
     if (existingMatchesData) {
       console.log("Found " + puuid + " in the database.");
@@ -59,12 +59,12 @@ router.get('/matches/by-puuid/:puuid', async (req: Request, res: Response) => {
         };
 
         // Insert new data into the collection
-        const confirmation = await collection.insertOne(matchesData);
+        /*const confirmation = await collection.insertOne(matchesData);
         if (confirmation.acknowledged) {
           console.log('Matches data related to ' + puuid + ' inserted successfully in the database.');
         } else {
           console.error(puuid + ' could not be inserted in the database.');
-        }
+        }*/
 
         // Send data gathered from the API
         res.send(matchesData);

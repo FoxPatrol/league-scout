@@ -22,7 +22,7 @@ export default function ItemIcon({ item, size }: { item?: number, size?: SizeTyp
         }
       })
       .catch((error) => {
-        console.error('Error loading item icon. Using empty icon');
+        console.error('Error loading item icon. Using empty item icon. Desired item:', item);
 
         import('../../assets/item/0.png').then((imageModule) => {
           if (isMounted) {
@@ -39,7 +39,7 @@ export default function ItemIcon({ item, size }: { item?: number, size?: SizeTyp
   let classNameImageSize = '';
   switch (size) {
     case SizeType.Small:
-      classNameImageSize = 'w-6 h-6';
+      classNameImageSize = 'w-7 h-7';
       break;
     case SizeType.Medium:
       classNameImageSize = 'w-12 h-12';

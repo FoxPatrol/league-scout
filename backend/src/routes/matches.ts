@@ -41,18 +41,18 @@ router.get('/matches/:matchId', async (req: Request, res: Response) => {
     if (existingMatchesData) {
       console.log("Found " + matchId + " in database.")
 
-      client.close();
+      //client.close();
       res.send(existingMatchesData)
       return;
     }
 
     // does not exist in database, proceed to API request
     console.log("Did not find " + matchId + " in database.")
-    client.close();
+    //client.close();
 
   } catch (error) {
     console.error("Error getting data from database", error)
-    client.close();
+    //client.close();
   }
 
   // Look for matches by match id in API
@@ -83,10 +83,10 @@ router.get('/matches/:matchId', async (req: Request, res: Response) => {
       {
         console.error(matchId + ' could not be inserted in database.');
       }
-      client.close();
+      //client.close();
     } catch (error) {
       console.error('Error inserting ' + matchId + ' in database.', error);
-      client.close();
+      //client.close();
     }
 
     // Send data gathered from API

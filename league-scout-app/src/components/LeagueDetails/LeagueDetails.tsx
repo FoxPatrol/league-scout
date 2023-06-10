@@ -27,6 +27,11 @@ export default function LeagueDetails() {
       return
     }
 
+    if(summonerData)
+    {
+      return;
+    }
+
     getSummonerData(summoner).then(d => {
       setSummonerData(d);
 
@@ -55,34 +60,34 @@ export default function LeagueDetails() {
   }, [])
 
   useEffect(() => {
-    if(summonerData)
+    if(!summonerData || (matchesInfo && matchesInfo.length > 0))
     {
-      getMatchesByPuuidData(summonerData.summonerDto.puuid).then(matches => {
-        if(!matches || matches.matches.length < 1)
-        {
-          console.error("No matches", matches)
-          return;
-        }
-
-        const matchIds = matches.matches;
-        if(!matchIds)
-        {
-          console.error("No matchIds", matchIds)
-          return;
-        }
-
-        let matchesInfo: any[] = [];
-        for(const matchId of matchIds)
-        {
-          console.log(matchId)
-          getMatchData(matchId).then(matchData => {
-            console.log(matchData)
-            matchesInfo.push(matchData?.info);
-            setMatchesInfo(matchesInfo);
-          })
-        }
-      })
+      return;
     }
+
+    getMatchesByPuuidData(summonerData.summonerDto.puuid).then(matches => {
+      if(!matches || matches.matches.length < 1)
+      {
+        console.error("No matches", matches)
+        return;
+      }
+
+      const matchIds = matches.matches;
+      if(!matchIds)
+      {
+        console.error("No matchIds", matchIds)
+        return;
+      }
+
+      Promise.all(matchIds.map(matchId => getMatchData(matchId))).then(matchDataArray => {
+        const updatedMatchesInfo = matchDataArray.map(matchData => matchData?.info);
+        setMatchesInfo(updatedMatchesInfo);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    })
+
   }, [summonerData])
 
   async function getSummonerData(summoner: string): Promise<SummonerData | undefined> {
@@ -158,7 +163,7 @@ export default function LeagueDetails() {
       <div className='flex flex-col'>
         {matchesInfo && summonerData ? matchesInfo.map((matchInfo, index) => (
           <MatchItem key={index} matchInfo={matchInfo} mainSummonerName={summonerData.summonerDto.name}/>
-        )) : ""}
+        )) : "nn"}
       </div>
 
     </div>

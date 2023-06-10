@@ -31,12 +31,12 @@ router.get('/summoner-names', async (req: Request, res: Response) => {
     const summonerDtos = await collection.distinct('summonerDto');
 
     // Close the connection
-    client.close();
+    //client.close();
 
     res.send(summonerDtos);
   } catch (error) {
     // Close the connection
-    client.close();
+    //client.close();
 
     console.error('Error occurred while fetching summonerDtos:', error);
     res.status(500).send('Error occurred while fetching summonerDtos.');
@@ -65,18 +65,18 @@ router.get('/summoner-names/:name', async (req: Request, res: Response) => {
     if (existingSummoner) {
       console.log("Found " + summonerName + " in database.")
 
-      client.close();
+      //client.close();
       res.send(existingSummoner)
       return;
     }
 
     // does not exist in database, proceed to API request
     console.log("Did not find " + summonerName + " in database.")
-    client.close();
+    //client.close();
 
   } catch (error) {
     console.error("Error getting data from database", error)
-    client.close();
+    //client.close();
   }
 
   // Look for summoner name in API
@@ -117,10 +117,10 @@ router.get('/summoner-names/:name', async (req: Request, res: Response) => {
       {
         console.error(summonerName + ' could not be inserted in database.');
       }
-      client.close();
+      //client.close();
     } catch (error) {
       console.error('Error inserting ' + summonerName + ' in database.', error);
-      client.close();
+      //client.close();
     }
 
     // Send data gathered from API
