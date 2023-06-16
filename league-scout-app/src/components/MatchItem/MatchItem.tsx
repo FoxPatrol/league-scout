@@ -1,5 +1,6 @@
 import ChampionIcon, { SizeType } from '../ChampionIcon/ChampionIcon';
 import ItemIcon from '../ItemIcon/ItemIcon';
+import RuneIcon from '../RuneIcon/RuneIcon';
 import SummonerSpellIcon from '../SummonerSpellIcon/SummonerSpellIcon';
 
 export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: any, mainSummonerName: string}) {
@@ -22,10 +23,10 @@ export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: 
       </div>
 
       {/* Summoner info like champion played, kda, items, runes, summoner spells */}
-      <div className='p-1 w-1/6 min-w-[240px]'>
+      <div className='p-1 w-72'>
 
-        <div className='flex items-center justify-center'>
-          <div className='flex items-center pb-2 pe-2'>
+        <div className='flex items-center justify-center gap-2 pb-2'>
+          <div className='flex items-center justify-center gap-1'>
             {/* Champion played */}
             <ChampionIcon champion={mainPlayer.championName} size={SizeType.Medium} />
 
@@ -37,18 +38,18 @@ export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: 
 
             <div>
               {/* Runes */}
-              <SummonerSpellIcon summonerSpell={1} size={SizeType.Small}/>
-              <SummonerSpellIcon summonerSpell={1} size={SizeType.Small}/>
+              <RuneIcon rune={mainPlayer.perks.styles[0].selections[0].perk} size={SizeType.Small}/>
+              <RuneIcon rune={mainPlayer.perks.styles[1].style} size={SizeType.Small}/>
             </div>
           </div>
 
-          <div className='flex'>
+          <div className='flex w-20 items-center justify-center'>
             {/* KDA */}
             <div className='text-xl'>
             <span className='font-bold text-green-700'>{mainPlayer.kills}</span>
-            <span> / </span>
+            <span>/</span>
             <span className='font-bold text-red-700'>{mainPlayer.deaths}</span>
-            <span> / </span>
+            <span>/</span>
             <span className='font-bold text-orange-600'>{mainPlayer.assists}</span>
             </div>
           </div>
