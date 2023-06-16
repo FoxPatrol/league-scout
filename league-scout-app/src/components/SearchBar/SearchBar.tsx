@@ -70,7 +70,7 @@ export default function SearchBar() {
   );
 
   return (
-    <form onSubmit={handleSubmit} className="flex gap-3 items-center">
+    <form onSubmit={handleSubmit} className="flex gap-3 items-center justify-center h-full">
       <div className="h-14 w-14 rounded-full bg-gray-50 flex items-center justify-center border-orange-300 border-2">
         <p className="font-bold">EUW</p>
       </div>
