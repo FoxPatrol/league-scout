@@ -16,7 +16,7 @@ export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: 
       <div className='p-1 w-1/6 min-w-[120px]'>
         <p className='text-lg'>{Math.floor(matchInfo.gameDuration / 60)}:{String(Math.round(matchInfo.gameDuration % 60)).padStart(2, '0')}</p>
         <p className={"font-bold text-3xl" + (mainPlayer.win ? " text-green-700" : " text-red-700")}>{mainPlayer.win ? "Victory" : "Defeat"}</p>
-        <p className='text-sm text-gray-400'>{timeDiffInMinutes > 60*24*2 ? Math.floor(timeDiffInMinutes/60/24) + " days ago" :
+        <p className='text-sm text-gray-400' title={gameFinishDate.toLocaleString()}>{timeDiffInMinutes > 60*24*2 ? Math.floor(timeDiffInMinutes/60/24) + " days ago" :
             timeDiffInMinutes > 60*24 ? "Yesterday":
             Math.floor(timeDiffInMinutes / 60) + "h" + String(Math.round(timeDiffInMinutes % 60)).padStart(2, '0') + "m ago"}</p>
       </div>
@@ -73,14 +73,14 @@ export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: 
           {matchInfo.participants.slice(0, 5).map((player: any, index: number) => (
             <div key={index} className="flex items-center">
               <ChampionIcon champion={player.championName} size={SizeType.Small} />
-              <span className="ml-2 overflow-hidden overflow-ellipsis whitespace-nowrap">{player.summonerName}</span>
+              <a className="ml-2 overflow-hidden overflow-ellipsis whitespace-nowrap text-black font-normal hover:underline" href={`/league-details?summoner=${player.summonerName}`}>{player.summonerName}</a>
             </div>
           ))}
         </div>
         <div className="w-1/2 pl-2 border-l min-w-[120px]">
           {matchInfo.participants.slice(5, 10).map((player: any, index: number) => (
             <div key={index} className="flex items-center justify-end">
-              <span className="mr-2 overflow-hidden overflow-ellipsis whitespace-nowrap">{player.summonerName}</span>
+              <a className="mr-2 overflow-hidden overflow-ellipsis whitespace-nowrap text-black font-normal hover:underline" href={`/league-details?summoner=${player.summonerName}`}>{player.summonerName}</a>
               <ChampionIcon champion={player.championName} size={SizeType.Small} />
             </div>
           ))}

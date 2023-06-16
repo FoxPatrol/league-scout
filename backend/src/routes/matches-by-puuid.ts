@@ -32,44 +32,70 @@ router.get('/matches/by-puuid/:puuid', async (req: Request, res: Response) => {
     const db = client.db(dbName!);
     const collection = db.collection(collectionSummonersMatchesRelations!);
 
-    // Look for summoner puuid in the database
-    //@ts-ignore
-    const existingMatchesData = undefined//await collection.findOne({ _id: puuid });
+    // Look for matches by puuid in the API
+    try {
+      console.log("Looking for matches by puuid " + puuid + " in the API.");
+      const response = await axios.get(`${riotEndpointMatchesByPuuid}`, {
+        headers: {
+          'X-Riot-Token': riotApiKey
+        }
+      });
 
-    if (existingMatchesData) {
-      console.log("Found " + puuid + " in the database.");
-      res.send(existingMatchesData);
-    } else {
-      console.log("Did not find " + puuid + " in the database.");
+      const matchesData: SummonersMatchesRelationsData = {
+        //@ts-ignore
+        _id: puuid,
+        timestamp: new Date(),
+        matches: response.data
+      };
 
-      // Look for matches by puuid in the API
-      try {
-        console.log("Looking for matches by puuid " + puuid + " in the API.");
-        const response = await axios.get(`${riotEndpointMatchesByPuuid}`, {
-          headers: {
-            'X-Riot-Token': riotApiKey
-          }
-        });
+      // Insert new data into the collection
+      // Check if an object with the same _id exists in the collection
+      //@ts-ignore
+      const existingData = await collection.findOne({ _id: puuid });
 
-        const matchesData: SummonersMatchesRelationsData = {
+      if (existingData) {
+        // Merge the new matches with the existing matches array and remove duplicates
+        const updatedMatches = [...matchesData.matches, ...existingData.matches];
+        const uniqueMatches = [...new Set(updatedMatches)];
+
+        // Update the existing document with the unique matches data
+        const updateConfirmation = await collection.updateOne(
           //@ts-ignore
-          _id: puuid,
-          timestamp: new Date(),
-          matches: response.data
-        };
+          { _id: puuid },
+          { $set: { matches: uniqueMatches } }
+        );
 
+        if (updateConfirmation.acknowledged) {
+          console.log('Matches data related to ' + puuid + ' updated successfully in the database.');
+        } else {
+          console.error('Failed to update matches data related to ' + puuid + ' in the database.');
+        }
+      } else {
         // Insert new data into the collection
-        /*const confirmation = await collection.insertOne(matchesData);
-        if (confirmation.acknowledged) {
+        const insertConfirmation = await collection.insertOne(matchesData);
+
+        if (insertConfirmation.acknowledged) {
           console.log('Matches data related to ' + puuid + ' inserted successfully in the database.');
         } else {
-          console.error(puuid + ' could not be inserted in the database.');
-        }*/
+          console.error('Failed to insert matches data related to ' + puuid + ' in the database.');
+        }
+      }
 
-        // Send data gathered from the API
-        res.send(matchesData);
-      } catch (error) {
-        console.error('Error inserting ' + puuid + ' in the database.', error);
+      // Send data gathered from the API
+      res.send(matchesData);
+    } catch (error) {
+      //@ts-ignore
+      console.error('Could not get matches data from API for ' + puuid + '. Using db.', error.code);
+
+      // Look for summoner puuid in the database
+      //@ts-ignore
+      const existingMatchesData = await collection.findOne({ _id: puuid });
+
+      if (existingMatchesData) {
+        console.log("Found " + puuid + " in the database.");
+        res.send(existingMatchesData);
+      } else {
+        console.log("Did not find " + puuid + " in the database.");
         res.status(500).send('Error occurred while fetching matches data.');
       }
     }
