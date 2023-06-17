@@ -159,7 +159,7 @@ export default function LeagueDetails() {
             <span className="flex items-center gap-2 pt-1 ps-1">
               {summonerDataLastUpdateTimeDiffInMinutes ?
                 // Text displaying last update date for summoner data
-                <p className='mb-auto text-left text-gray-500'>Updated {summonerDataLastUpdateTimeDiffInMinutes > 60*24*2 ? Math.floor(summonerDataLastUpdateTimeDiffInMinutes/60/24) + " days ago" :
+                <p className='mb-auto text-left text-gray-500' title={summonerData?.timestamp ? new Date(summonerData.timestamp).toLocaleString() : ""}>Updated {summonerDataLastUpdateTimeDiffInMinutes > 60*24*2 ? Math.floor(summonerDataLastUpdateTimeDiffInMinutes/60/24) + " days ago" :
                   summonerDataLastUpdateTimeDiffInMinutes > 60*24 ? "Yesterday":
                   Math.floor(summonerDataLastUpdateTimeDiffInMinutes / 60) + "h" + String(Math.round(summonerDataLastUpdateTimeDiffInMinutes % 60)).padStart(2, '0') + "m ago"}
                 </p>
