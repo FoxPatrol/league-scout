@@ -33,6 +33,7 @@ export default function ItemIcon({ item, size }: { item?: number, size?: SizeTyp
         })
       });
 
+    //@ts-ignore
     const itemData = itemJsonData.data[item];
 
     if(itemData)
@@ -97,6 +98,7 @@ export default function ItemIcon({ item, size }: { item?: number, size?: SizeTyp
     <img
       src={image}
       alt="Item Icon"
+      //@ts-ignore
       title={item ? `${itemJsonData.data[item].name}\n\n${description}` : ''}
       className={`${classNameImageSize} rounded-md`}
     />
