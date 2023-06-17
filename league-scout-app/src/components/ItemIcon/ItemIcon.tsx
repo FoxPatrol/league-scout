@@ -99,7 +99,7 @@ export default function ItemIcon({ item, size }: { item?: number, size?: SizeTyp
       src={image}
       alt="Item Icon"
       //@ts-ignore
-      title={item ? `${itemJsonData.data[item].name}\n\n${description}` : ''}
+      title={item ? `${itemJsonData.data[item].name} - ${itemJsonData.data[item].gold.total}g\n\n${description}` : ''}
       className={`${classNameImageSize} rounded-md`}
     />
   );
