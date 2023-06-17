@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import itemJsonData from '../../assets/item.json';
 
 export enum SizeType {
   Big,
@@ -8,6 +9,7 @@ export enum SizeType {
 
 export default function ItemIcon({ item, size }: { item?: number, size?: SizeType }) {
   const [image, setImage] = useState<string | undefined>(undefined);
+  const [description, setDescription] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     let isMounted = true;
@@ -30,6 +32,47 @@ export default function ItemIcon({ item, size }: { item?: number, size?: SizeTyp
           }
         })
       });
+
+    const itemData = itemJsonData.data[item];
+
+    if(itemData)
+    {
+      // Parse the description using DOMParser
+      const parser = new DOMParser();
+      const descriptionDocument = parser.parseFromString(itemData.description, 'text/html');
+      const mainTextElement = descriptionDocument.getElementsByTagName('mainText')[0];
+
+      if (mainTextElement) {
+        // Convert child elements to string representation with line breaks
+        let mainText = '';
+        Array.from(mainTextElement.childNodes).forEach((node) => {
+            if (node.nodeName === 'BR') {
+              mainText += '\n'; // Add line break when <br> element is encountered
+            } else if (node.nodeName === 'STATS') {
+              Array.from(node.childNodes).forEach((statsNode) => {
+                if (statsNode.nodeName === 'BR') {
+                  mainText += '\n'; // Add line break when <br> element is encountered within <stats>
+                } else {
+                  mainText += statsNode.textContent;
+                }
+              });
+            } else if (node.nodeName === 'LI') {
+                mainText += '\n'; // Add line break when <li> element is encountered
+                Array.from(node.childNodes).forEach((liNode) => {
+                if (liNode.nodeName === 'BR') {
+                  mainText += '\n'; // Add line break when <br> element is encountered within <stats>
+                } else {
+                  mainText += liNode.textContent;
+                }
+              });
+            } else {
+              mainText += node.textContent;
+            }
+        });
+
+        setDescription(mainText);
+      }
+    }
 
     return () => {
       isMounted = false;
@@ -54,6 +97,7 @@ export default function ItemIcon({ item, size }: { item?: number, size?: SizeTyp
     <img
       src={image}
       alt="Item Icon"
+      title={item ? `${itemJsonData.data[item].name}\n\n${description}` : ''}
       className={`${classNameImageSize} rounded-md`}
     />
   );
