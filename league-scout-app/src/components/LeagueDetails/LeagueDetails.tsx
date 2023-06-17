@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { MatchDTO, SummonerData, SummonersMatchesRelationsData } from '../../../../backend/src/interface/interfaces';
 import SummonerIcon, { SizeType } from '../SummonerIcon/SummonerIcon';
 import RankInformation from '../RankInformation/RankInformation';
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import MatchItem from '../MatchItem/MatchItem';
 
 const baseUrl = 'http://localhost:3000/';
@@ -15,6 +15,7 @@ export default function LeagueDetails() {
   const [solo, setSolo] = useState<any>();
   const [flex, setFlex] = useState<any>();
   const [matchesInfo, setMatchesInfo] = useState<any[]>([]);
+  const [summonerDataLastUpdateTimeDiffInMinutes, setSummonerDataLastUpdateTimeDiffInMinutes] = useState<number>();
 
   useEffect(() => {
     const location = window.location;
@@ -32,37 +33,37 @@ export default function LeagueDetails() {
       return;
     }
 
-    getSummonerData(summoner).then(d => {
-      setSummonerData(d);
-
-      if(!d)
-      {
-        console.log("no data", d)
-        return;
-      }
-
-      for(let dd of d.leagueEntryDto)
-      {
-        if(dd.queueType.includes("FLEX"))
-        {
-          setFlex(dd)
-        }
-        else if(dd.queueType.includes("SOLO"))
-        {
-          setSolo(dd)
-        }
-        else
-        {
-          console.error("Couldnt match this data to league type", dd)
-        }
-      }
-    })
+    getSummonerData(summoner)
   }, [])
 
   useEffect(() => {
-    if(!summonerData || (matchesInfo && matchesInfo.length > 0))
+    if(!summonerData)
     {
       return;
+    }
+
+    for(let dd of summonerData.leagueEntryDto)
+    {
+      if(dd.queueType.includes("FLEX"))
+      {
+        setFlex(dd)
+      }
+      else if(dd.queueType.includes("SOLO"))
+      {
+        setSolo(dd)
+      }
+      else
+      {
+        console.error("Couldnt match this data to league type", dd)
+      }
+    }
+
+    if(summonerData.timestamp)
+    {
+      const gameFinishDate = new Date(summonerData.timestamp);
+      const now = new Date();
+      const timeDiffInMilliseconds = now.getTime() - gameFinishDate.getTime();
+      setSummonerDataLastUpdateTimeDiffInMinutes(timeDiffInMilliseconds / 1000 / 60);
     }
 
     getMatchesByPuuidData(summonerData.summonerDto.puuid).then(matches => {
@@ -87,17 +88,24 @@ export default function LeagueDetails() {
         console.error('Error:', error);
       });
     })
-
   }, [summonerData])
 
-  async function getSummonerData(summoner: string): Promise<SummonerData | undefined> {
+  async function getSummonerData(summoner: string, forceRefresh?: boolean): Promise<void> {
     try {
-      const response = await axios.get(`${getSummonerNameUrl}${summoner}`);
+      const headers: AxiosRequestConfig['headers'] = {};
+      if (forceRefresh) {
+        headers['force-refresh'] = 'true';
+      }
+
+      const config: AxiosRequestConfig = {
+        headers,
+      };
+
+      const response = await axios.get(`${getSummonerNameUrl}${summoner}`, config);
       const data = response.data;
-      return data;
+      setSummonerData(data);
     } catch (error) {
       console.error('Error:', error);
-      return undefined;
     }
   }
 
@@ -144,12 +152,23 @@ export default function LeagueDetails() {
             // Summoner name and spacing
           }
           <div className='flex flex-col p-2'>
-            <div className='flex h-full'>
+            <div className='flex mt-2'>
               <div className='m-auto'>
                 <div className='text-4xl sm:text-6xl'>{summonerData?.summonerDto.name}</div>
               </div>
             </div>
-            <div className='p-2 h-9 mt-auto'></div>
+
+            <span className="flex items-center gap-2 pt-1">
+              {summonerDataLastUpdateTimeDiffInMinutes ?
+                // Text displaying last update date for summoner data
+                <p className='mb-auto text-left text-gray-500'>Updated {summonerDataLastUpdateTimeDiffInMinutes > 60*24*2 ? Math.floor(summonerDataLastUpdateTimeDiffInMinutes/60/24) + " days ago" :
+                  summonerDataLastUpdateTimeDiffInMinutes > 60*24 ? "Yesterday":
+                  Math.floor(summonerDataLastUpdateTimeDiffInMinutes / 60) + "h" + String(Math.round(summonerDataLastUpdateTimeDiffInMinutes % 60)).padStart(2, '0') + "m ago"}
+                </p>
+              : "No last update date"}
+
+              <button className='py-0 flex items-end bg-orange-100' onClick={() => {summonerData ? getSummonerData(summonerData.summonerDto.name, true) : console.error("No summoner data to refresh")}}>Refresh</button>
+            </span>
           </div>
         </div>
 

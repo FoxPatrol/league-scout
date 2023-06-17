@@ -49,34 +49,40 @@ router.get('/summoner-names/:name', async (req: Request, res: Response) => {
   console.log("get /summoner-names/" + summonerName)
   const riotEndpointSummonerByName = riotEndpointSummonerByNamePreProcess?.replace("{summonerName}", summonerName);
 
+  const forceRefresh = req.headers['force-refresh'] === 'true'; // Check if "force-refresh" header exists and is true
+  console.log(forceRefresh)
+
   const db = client.db(dbName!);
   const collection = db.collection(collectionName!);
 
   // Look for summoner name in database
-  try {
-    console.log("Looking for " + summonerName + " in database.")
-    // Get the database and collection
-    await client.connect();
+  if(!forceRefresh)
+  {
+    try {
+      console.log("Looking for " + summonerName + " in database.")
+      // Get the database and collection
+      await client.connect();
 
-    // Check if summoner data exists in the database
-    const existingSummoner = await collection.findOne({ 'summonerDto.name': { $regex: new RegExp(`^${summonerName}$`, 'i') } });
+      // Check if summoner data exists in the database
+      const existingSummoner = await collection.findOne({ 'summonerDto.name': { $regex: new RegExp(`^${summonerName}$`, 'i') } });
 
-    // If exist, send data from database
-    if (existingSummoner) {
-      console.log("Found " + summonerName + " in database.")
+      // If exist, send data from database
+      if (existingSummoner) {
+        console.log("Found " + summonerName + " in database.")
 
+        //client.close();
+        res.send(existingSummoner)
+        return;
+      }
+
+      // does not exist in database, proceed to API request
+      console.log("Did not find " + summonerName + " in database.")
       //client.close();
-      res.send(existingSummoner)
-      return;
+
+    } catch (error) {
+      console.error("Error getting data from database", error)
+      //client.close();
     }
-
-    // does not exist in database, proceed to API request
-    console.log("Did not find " + summonerName + " in database.")
-    //client.close();
-
-  } catch (error) {
-    console.error("Error getting data from database", error)
-    //client.close();
   }
 
   // Look for summoner name in API
@@ -105,10 +111,19 @@ router.get('/summoner-names/:name', async (req: Request, res: Response) => {
       leagueEntryDto: leagueEntryData
     }
 
+    const query = { _id: summonerData.puuid };
+    const update = {
+      $set: {
+        timestamp: new Date(),
+        summonerDto: summonerData,
+        leagueEntryDto: leagueEntryData
+      }
+    };
+
     try {
       // Insert new summoner data into the collection
-      await client.connect();
-      const confirmation = await collection.insertOne(sData);
+      //@ts-ignore
+      const confirmation = await collection.updateOne(query, update, { upsert: true });
       if(confirmation.acknowledged)
       {
         console.log('Summoner ' + summonerName + ' inserted successfully in database.');
