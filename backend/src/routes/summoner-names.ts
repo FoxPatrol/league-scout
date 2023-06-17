@@ -50,7 +50,6 @@ router.get('/summoner-names/:name', async (req: Request, res: Response) => {
   const riotEndpointSummonerByName = riotEndpointSummonerByNamePreProcess?.replace("{summonerName}", summonerName);
 
   const forceRefresh = req.headers['force-refresh'] === 'true'; // Check if "force-refresh" header exists and is true
-  console.log(forceRefresh)
 
   const db = client.db(dbName!);
   const collection = db.collection(collectionName!);
