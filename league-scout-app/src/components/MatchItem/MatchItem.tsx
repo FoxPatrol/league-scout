@@ -19,7 +19,7 @@ export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: 
         <p className={"font-bold text-3xl" + (mainPlayer.win ? " text-green-700" : " text-red-700")}>{mainPlayer.win ? "Victory" : "Defeat"}</p>
         <p className='text-sm text-gray-400' title={gameFinishDate.toLocaleString()}>{timeDiffInMinutes > 60*24*2 ? Math.floor(timeDiffInMinutes/60/24) + " days ago" :
             timeDiffInMinutes > 60*24 ? "Yesterday":
-            Math.floor(timeDiffInMinutes / 60) + "h" + String(Math.round(timeDiffInMinutes % 60)).padStart(2, '0') + "m ago"}</p>
+            Math.floor(timeDiffInMinutes / 60) + "h" + String(Math.floor(timeDiffInMinutes % 60)).padStart(2, '0') + "m ago"}</p>
       </div>
 
       {/* Summoner info like champion played, kda, items, runes, summoner spells */}
