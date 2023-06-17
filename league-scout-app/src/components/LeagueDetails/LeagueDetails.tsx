@@ -152,13 +152,11 @@ export default function LeagueDetails() {
             // Summoner name and spacing
           }
           <div className='flex flex-col p-2'>
-            <div className='flex mt-2'>
-              <div className='m-auto'>
-                <div className='text-4xl sm:text-6xl'>{summonerData?.summonerDto.name}</div>
-              </div>
+            <div className='flex mt-2 me-auto'>
+              <div className='text-4xl sm:text-6xl'>{summonerData?.summonerDto.name}</div>
             </div>
 
-            <span className="flex items-center gap-2 pt-1">
+            <span className="flex items-center gap-2 pt-1 ps-1">
               {summonerDataLastUpdateTimeDiffInMinutes ?
                 // Text displaying last update date for summoner data
                 <p className='mb-auto text-left text-gray-500'>Updated {summonerDataLastUpdateTimeDiffInMinutes > 60*24*2 ? Math.floor(summonerDataLastUpdateTimeDiffInMinutes/60/24) + " days ago" :
