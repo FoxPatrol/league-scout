@@ -1,4 +1,3 @@
-import { SummonersMatchesRelationsData } from '../interface/interfaces';
 import express, { Request, Response, Router } from 'express';
 import axios from 'axios';
 
