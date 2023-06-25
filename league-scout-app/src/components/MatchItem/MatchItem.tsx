@@ -11,7 +11,7 @@ export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: 
   const timeDiffInMinutes = timeDiffInMilliseconds / 1000 / 60;
 
   return (
-    <div className="border border-gray-300 flex items-center gap-1">
+    <div className={"border border-gray-300 flex items-center gap-1" + (mainPlayer.win ? " bg-green-100" : " bg-red-100")}>
 
       {/* Match info like when it was played and victory/defeat */}
       <div className='p-1 w-1/6 min-w-[120px]'>
