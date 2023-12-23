@@ -9,6 +9,7 @@ export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: 
   const now = new Date();
   const timeDiffInMilliseconds = now.getTime() - gameFinishDate.getTime();
   const timeDiffInMinutes = timeDiffInMilliseconds / 1000 / 60;
+  const gameModeMap: {[key: number]: string} = {400: "Normal", 420: "Solo/Duo", 440: "Flex", 450: "ARAM", 700: "Clash"}
 
   return (
     <div className={"border border-gray-300 flex items-center gap-1" + (mainPlayer.win ? " bg-green-100" : " bg-red-100")}>
@@ -17,6 +18,7 @@ export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: 
       <div className='p-1 w-1/6 min-w-[120px]'>
         <p className='text-lg'>{Math.floor(matchInfo.gameDuration / 60)}:{String(Math.round(matchInfo.gameDuration % 60)).padStart(2, '0')}</p>
         <p className={"font-bold text-3xl" + (mainPlayer.win ? " text-green-700" : " text-red-700")}>{mainPlayer.win ? "Victory" : "Defeat"}</p>
+        <p>{gameModeMap[matchInfo.queueId] ?? "Unknown"}</p>
         <p className='text-sm text-gray-400' title={gameFinishDate.toLocaleString()}>{timeDiffInMinutes > 60*24*2 ? Math.floor(timeDiffInMinutes/60/24) + " days ago" :
             timeDiffInMinutes > 60*24 ? "Yesterday":
             Math.floor(timeDiffInMinutes / 60) + "h" + String(Math.floor(timeDiffInMinutes % 60)).padStart(2, '0') + "m ago"}</p>
@@ -28,7 +30,7 @@ export default function MatchItem({ matchInfo, mainSummonerName } : {matchInfo: 
         <div className='flex items-center justify-center gap-2 pb-2'>
           <div className='flex items-center justify-center gap-1'>
             {/* Champion played */}
-            <ChampionIcon champion={mainPlayer.championName} size={SizeType.Medium} />
+            <ChampionIcon champion={mainPlayer.championName} size={SizeType.Medium}/>
 
             <div>
               {/* Summoner spells */}

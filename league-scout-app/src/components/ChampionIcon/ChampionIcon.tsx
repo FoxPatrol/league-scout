@@ -6,7 +6,13 @@ export enum SizeType {
   Small
 }
 
-export default function ChampionIcon({ champion, size }: { champion?: string, size?: SizeType }) {
+interface ChampionIconProps {
+  champion?: string;
+  size?: SizeType;
+  dead?: boolean;
+}
+
+export default function ChampionIcon({ champion, size, dead = false }: ChampionIconProps) {
   const [image, setImage] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -54,7 +60,8 @@ export default function ChampionIcon({ champion, size }: { champion?: string, si
     <img
       src={image}
       alt="Champion Icon"
-      className={`${classNameImageSize} rounded-full`}
+      title={champion}
+      className={`${classNameImageSize} ${dead && 'filter grayscale'} rounded-full`}
     />
   );
 }

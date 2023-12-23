@@ -4,6 +4,7 @@ import SummonerIcon, { SizeType } from '../SummonerIcon/SummonerIcon';
 import RankInformation from '../RankInformation/RankInformation';
 import axios, { AxiosRequestConfig } from 'axios';
 import MatchItem from '../MatchItem/MatchItem';
+import { useNavigate } from 'react-router-dom';
 
 const baseUrl = 'http://localhost:3000/';
 const getSummonerNameUrl = baseUrl + 'summoner-names/';
@@ -14,8 +15,9 @@ export default function LeagueDetails() {
   const [summonerData, setSummonerData] = useState<SummonerData>();
   const [solo, setSolo] = useState<any>();
   const [flex, setFlex] = useState<any>();
-  const [matchesInfo, setMatchesInfo] = useState<any[]>([]);
+  const [matchesData, setMatchesData] = useState<any[]>([]);
   const [summonerDataLastUpdateTimeDiffInMinutes, setSummonerDataLastUpdateTimeDiffInMinutes] = useState<number>();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const location = window.location;
@@ -81,8 +83,7 @@ export default function LeagueDetails() {
       }
 
       Promise.all(matchIds.map(matchId => getMatchData(matchId))).then(matchDataArray => {
-        const updatedMatchesInfo = matchDataArray.map(matchData => matchData?.info);
-        setMatchesInfo(updatedMatchesInfo);
+        setMatchesData(matchDataArray);
       })
       .catch(error => {
         console.error('Error:', error);
@@ -131,6 +132,10 @@ export default function LeagueDetails() {
     }
   }
 
+  function handleTimeline(matchId: string): void {
+    navigate(`/league-details/timeline?matchId=${matchId}`);
+  };
+
   return (
     <div className='flex flex-col lg:flex-row gap-2 justify-center'>
       <div className='flex flex-col'>
@@ -177,9 +182,15 @@ export default function LeagueDetails() {
 
       </div>
 
-      <div className='flex flex-col'>
-        {matchesInfo && summonerData ? matchesInfo.map((matchInfo, index) => (
-          <MatchItem key={index} matchInfo={matchInfo} mainSummonerName={summonerData.summonerDto.name}/>
+      {
+      //  Match item + timeline button
+      }
+      <div className='flex flex-col gap-1'>
+        {matchesData && summonerData ? matchesData.map((matchData, index) => (
+          <div className='flex flex-col'>
+            <MatchItem key={index} matchInfo={matchData.info} mainSummonerName={summonerData.summonerDto.name}/>
+            <button className='bg-gray-100 border-gray-300 p-0 rounded-t-none' onClick={() => handleTimeline(matchData.metadata.matchId)}>Timeline</button>
+          </div>
         )) : "nn"}
       </div>
 
