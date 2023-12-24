@@ -1,0 +1,48 @@
+import dotenv from 'dotenv';
+
+// Load configurations from .env file
+dotenv.config();
+
+// Define types for configurations
+type Config = {
+  RIOT_API_KEY: string;
+  RIOT_ENDPOINT_SUMMONER_BY_NAME: string;
+  RIOT_ENDPOINT_RANK_BY_SUMMONER: string;
+  RIOT_ENDPOINT_MATCHES_BY_PUUID: string;
+  RIOT_ENDPOINT_MATCHES: string;
+  RIOT_ENDPOINT_MATCHES_TIMELINE: string;
+  SERVER_PORT: number;
+  DATABASE_CONNECTION_TIMEOUT_MILLISECONDS: number;
+  MONGODB_URI: string;
+  MONGODB_DATABASE: string;
+  MONGODB_COLLECTION_SUMMONERS: string;
+  MONGODB_COLLECTION_MATCHES: string;
+  MONGODB_COLLECTION_SUMMONERS_MATCHES_RELATIONS: string;
+};
+
+// Create an object with configurations
+const config: Config = {
+  RIOT_API_KEY: process.env.RIOT_API_KEY || '',
+  RIOT_ENDPOINT_SUMMONER_BY_NAME:
+    process.env.RIOT_ENDPOINT_SUMMONER_BY_NAME || '',
+  RIOT_ENDPOINT_RANK_BY_SUMMONER:
+    process.env.RIOT_ENDPOINT_RANK_BY_SUMMONER || '',
+  RIOT_ENDPOINT_MATCHES_BY_PUUID:
+    process.env.RIOT_ENDPOINT_MATCHES_BY_PUUID || '',
+  RIOT_ENDPOINT_MATCHES: process.env.RIOT_ENDPOINT_MATCHES || '',
+  RIOT_ENDPOINT_MATCHES_TIMELINE:
+    process.env.RIOT_ENDPOINT_MATCHES_TIMELINE || '',
+  SERVER_PORT: parseInt(process.env.SERVER_PORT || '3000', 10),
+  DATABASE_CONNECTION_TIMEOUT_MILLISECONDS: parseFloat(
+    process.env.DATABASE_CONNECTION_TIMEOUT_MILLISECONDS || '5000',
+  ),
+  MONGODB_URI: process.env.MONGODB_URI || '',
+  MONGODB_DATABASE: process.env.MONGODB_DATABASE || '',
+  MONGODB_COLLECTION_SUMMONERS: process.env.MONGODB_COLLECTION_SUMMONERS || '',
+  MONGODB_COLLECTION_MATCHES: process.env.MONGODB_COLLECTION_MATCHES || '',
+  MONGODB_COLLECTION_SUMMONERS_MATCHES_RELATIONS:
+    process.env.MONGODB_COLLECTION_SUMMONERS_MATCHES_RELATIONS || '',
+};
+
+// Export the configurations
+export default config;

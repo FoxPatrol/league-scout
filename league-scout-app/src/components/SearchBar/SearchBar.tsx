@@ -9,7 +9,7 @@ const getSummonerNameUrl = baseUrl + 'summoner-names/';
 
 export default function SearchBar() {
   const [input, setInput] = useState<string>('');
-  const [suggestions, setSuggestions] = useState<{name: string, iconId: number}[]>([]);
+  const [suggestions, setSuggestions] = useState<{ name: string; iconId: number }[]>([]);
   const [isFocused, setIsFocused] = useState<boolean>(false);
   const navigate = useNavigate();
 
@@ -20,8 +20,8 @@ export default function SearchBar() {
   async function getSuggestions(): Promise<void> {
     try {
       const response: AxiosResponse<SummonerDTO[]> = await axios.get(getSummonerNameUrl);
-      const suggestionsData: {name: string, iconId: number}[] = response.data.map((summonerDto) => {
-        return {name: summonerDto.name, iconId: summonerDto.profileIconId}
+      const suggestionsData: { name: string; iconId: number }[] = response.data.map((summonerDto) => {
+        return { name: summonerDto.name, iconId: summonerDto.profileIconId };
       });
       setSuggestions(suggestionsData);
     } catch (error) {
@@ -32,7 +32,7 @@ export default function SearchBar() {
   async function handleChange(event: React.ChangeEvent<HTMLInputElement>): Promise<void> {
     const inputValue: string = event.target.value;
     setInput(inputValue);
-  };
+  }
 
   function handleSuggestionClick(suggestion: string): void {
     if (!suggestion.trim()) {
@@ -41,7 +41,7 @@ export default function SearchBar() {
     }
 
     navigate(`/league-details?summoner=${suggestion}`);
-  };
+  }
 
   function handleSubmit(event: React.FormEvent): void {
     event.preventDefault();
@@ -51,7 +51,7 @@ export default function SearchBar() {
     }
 
     navigate(`/league-details?summoner=${input}`);
-  };
+  }
 
   function handleFocus(): void {
     setIsFocused(true);
@@ -61,13 +61,11 @@ export default function SearchBar() {
     // need timeout so that can click on suggestions
     setTimeout(() => {
       setIsFocused(false);
-    }, 100)
+    }, 100);
   }
 
   // Filter suggestions based on input value
-  const filteredSuggestions = suggestions.filter((sug) =>
-    sug.name.toLowerCase().startsWith(input.toLowerCase())
-  );
+  const filteredSuggestions = suggestions.filter((sug) => sug.name.toLowerCase().startsWith(input.toLowerCase()));
 
   return (
     <form onSubmit={handleSubmit} className="flex gap-3 items-center justify-center h-full">
@@ -91,9 +89,10 @@ export default function SearchBar() {
               <li
                 key={suggestion.name}
                 onClick={() => handleSuggestionClick(suggestion.name)}
-                className="cursor-pointer p-1 hover:bg-gray-200 rounded flex items-center">
-                <SummonerIcon icon={suggestion.iconId} size={SizeType.Small}/>
-                <span className='mx-auto'>{suggestion.name}</span>
+                className="cursor-pointer p-1 hover:bg-gray-200 rounded flex items-center"
+              >
+                <SummonerIcon icon={suggestion.iconId} size={SizeType.Small} />
+                <span className="mx-auto">{suggestion.name}</span>
               </li>
             ))}
           </ul>

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
+import * as summonerJson from '../../assets/summoner.json';
 
 export enum SizeType {
   Big,
   Medium,
-  Small
+  Small,
 }
 
-export default function SummonerSpellIcon({ summonerSpell, size }: { summonerSpell?: number, size?: SizeType }) {
+export default function SummonerSpellIcon({ summonerSpell, size }: { summonerSpell?: number; size?: SizeType }) {
   const [image, setImage] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -16,7 +17,29 @@ export default function SummonerSpellIcon({ summonerSpell, size }: { summonerSpe
       return;
     }
 
-    import(`../../assets/summoner-spell/${summonerSpell}.png`).then((imageModule) => {
+    const summonerDict = summonerJson.data;
+
+    const matchSummSpellIdToImage = {};
+    // Check if summonerDict is an object
+    if (typeof summonerDict === 'object' && summonerDict !== null) {
+      // Initialize a new dictionary
+
+      // Iterate through each element in the summonerDict
+      for (const key in summonerDict) {
+        if (summonerDict.hasOwnProperty(key)) {
+          // Access the "key" and "image.full" properties
+          const summonerKey = summonerDict[key].key;
+          const summonerImageFull = summonerDict[key].image.full;
+
+          // Assign to the new dictionary
+          matchSummSpellIdToImage[summonerKey] = summonerImageFull;
+        }
+      }
+    }
+
+    const src = `../../assets/spell/${matchSummSpellIdToImage[summonerSpell.toString()]}`;
+    import(src)
+      .then((imageModule) => {
         if (isMounted) {
           setImage(imageModule.default);
         }
@@ -24,11 +47,11 @@ export default function SummonerSpellIcon({ summonerSpell, size }: { summonerSpe
       .catch((error) => {
         console.error('Error loading summoner spell icon. Desired summoner spell:', summonerSpell);
 
-        import('../../assets/summoner-spell/1.png').then((imageModule) => {
+        import('../../assets/spell/Summoner_UltBookPlaceholder.png').then((imageModule) => {
           if (isMounted) {
             setImage(imageModule.default);
           }
-        })
+        });
       });
 
     return () => {
@@ -50,11 +73,5 @@ export default function SummonerSpellIcon({ summonerSpell, size }: { summonerSpe
       break;
   }
 
-  return (
-    <img
-      src={image}
-      alt="Summoner Spell Icon"
-      className={`${classNameImageSize} rounded-md`}
-    />
-  );
+  return <img src={image} alt="Summoner Spell Icon" className={`${classNameImageSize} rounded-md`} />;
 }

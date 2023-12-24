@@ -1,13 +1,46 @@
 import React, { useEffect, useState } from 'react';
+import * as runesReforgedJson from '../../assets/runesReforged.json';
 
 export enum SizeType {
   Big,
   Medium,
-  Small
+  Small,
 }
 
-export default function RuneIcon({ rune, size }: { rune?: number, size?: SizeType }) {
+type perkType = {
+  perk: number;
+  var1: number;
+  var2: number;
+  var3: number;
+};
+
+type runeProp = {
+  description: string;
+  selections: perkType[];
+  style: number;
+};
+
+export default function RuneIcon({ rune, size }: { rune?: runeProp; size?: SizeType }) {
   const [image, setImage] = useState<string | undefined>(undefined);
+
+  function getImageSrc(rune: runeProp) {
+    // Iterate through each element in the summonerDict
+    for (const perkJson of runesReforgedJson.default) {
+      if (perkJson.id == rune.style) {
+        if (rune.description == 'subStyle') {
+          return perkJson.icon.toLowerCase();
+        }
+
+        for (const runeJson of perkJson.slots[0].runes) {
+          if (runeJson.id == rune.selections[0].perk) {
+            return runeJson.icon.toLowerCase();
+          }
+        }
+      }
+    }
+
+    return 'item/1004';
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -16,7 +49,11 @@ export default function RuneIcon({ rune, size }: { rune?: number, size?: SizeTyp
       return;
     }
 
-    import(`../../assets/rune/${rune}.png`).then((imageModule) => {
+    let imageSrc = getImageSrc(rune);
+
+    const src = `../../assets/${imageSrc}`;
+    import(src)
+      .then((imageModule) => {
         if (isMounted) {
           setImage(imageModule.default);
         }
@@ -24,11 +61,11 @@ export default function RuneIcon({ rune, size }: { rune?: number, size?: SizeTyp
       .catch((error) => {
         console.error('Error loading rune icon. Desired rune:', rune);
 
-        import('../../assets/rune/8369.png').then((imageModule) => {
+        import('../../assets/item/1004.png').then((imageModule) => {
           if (isMounted) {
             setImage(imageModule.default);
           }
-        })
+        });
       });
 
     return () => {
@@ -50,11 +87,5 @@ export default function RuneIcon({ rune, size }: { rune?: number, size?: SizeTyp
       break;
   }
 
-  return (
-    <img
-      src={image}
-      alt="Rune Icon"
-      className={`${classNameImageSize} rounded-md bg-gray-800`}
-    />
-  );
+  return <img src={image} alt="Rune Icon" className={`${classNameImageSize} rounded-md bg-gray-800`} />;
 }

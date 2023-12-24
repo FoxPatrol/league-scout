@@ -4,10 +4,10 @@ import itemJsonData from '../../assets/item.json';
 export enum SizeType {
   Big,
   Medium,
-  Small
+  Small,
 }
 
-export default function ItemIcon({ item, size }: { item?: number, size?: SizeType }) {
+export default function ItemIcon({ item, size }: { item?: number; size?: SizeType }) {
   const [image, setImage] = useState<string | undefined>(undefined);
   const [description, setDescription] = useState<string | undefined>(undefined);
 
@@ -18,7 +18,8 @@ export default function ItemIcon({ item, size }: { item?: number, size?: SizeTyp
       return;
     }
 
-    import(`../../assets/item/${item}.png`).then((imageModule) => {
+    import(`../../assets/item/${item}.png`)
+      .then((imageModule) => {
         if (isMounted) {
           setImage(imageModule.default);
         }
@@ -26,18 +27,17 @@ export default function ItemIcon({ item, size }: { item?: number, size?: SizeTyp
       .catch((error) => {
         console.error('Error loading item icon. Using empty item icon. Desired item:', item);
 
-        import('../../assets/item/0.png').then((imageModule) => {
+        import('../../assets/item/7050.png').then((imageModule) => {
           if (isMounted) {
             setImage(imageModule.default);
           }
-        })
+        });
       });
 
     //@ts-ignore
     const itemData = itemJsonData.data[item];
 
-    if(itemData)
-    {
+    if (itemData) {
       // Parse the description using DOMParser
       const parser = new DOMParser();
       const descriptionDocument = parser.parseFromString(itemData.description, 'text/html');
@@ -47,28 +47,28 @@ export default function ItemIcon({ item, size }: { item?: number, size?: SizeTyp
         // Convert child elements to string representation with line breaks
         let mainText = '';
         Array.from(mainTextElement.childNodes).forEach((node) => {
-            if (node.nodeName === 'BR') {
-              mainText += '\n'; // Add line break when <br> element is encountered
-            } else if (node.nodeName === 'STATS') {
-              Array.from(node.childNodes).forEach((statsNode) => {
-                if (statsNode.nodeName === 'BR') {
-                  mainText += '\n'; // Add line break when <br> element is encountered within <stats>
-                } else {
-                  mainText += statsNode.textContent;
-                }
-              });
-            } else if (node.nodeName === 'LI') {
-                mainText += '\n'; // Add line break when <li> element is encountered
-                Array.from(node.childNodes).forEach((liNode) => {
-                if (liNode.nodeName === 'BR') {
-                  mainText += '\n'; // Add line break when <br> element is encountered within <stats>
-                } else {
-                  mainText += liNode.textContent;
-                }
-              });
-            } else {
-              mainText += node.textContent;
-            }
+          if (node.nodeName === 'BR') {
+            mainText += '\n'; // Add line break when <br> element is encountered
+          } else if (node.nodeName === 'STATS') {
+            Array.from(node.childNodes).forEach((statsNode) => {
+              if (statsNode.nodeName === 'BR') {
+                mainText += '\n'; // Add line break when <br> element is encountered within <stats>
+              } else {
+                mainText += statsNode.textContent;
+              }
+            });
+          } else if (node.nodeName === 'LI') {
+            mainText += '\n'; // Add line break when <li> element is encountered
+            Array.from(node.childNodes).forEach((liNode) => {
+              if (liNode.nodeName === 'BR') {
+                mainText += '\n'; // Add line break when <br> element is encountered within <stats>
+              } else {
+                mainText += liNode.textContent;
+              }
+            });
+          } else {
+            mainText += node.textContent;
+          }
         });
 
         setDescription(mainText);

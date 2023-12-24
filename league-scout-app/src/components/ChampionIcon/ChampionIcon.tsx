@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 export enum SizeType {
   Big,
   Medium,
-  Small
+  Small,
 }
 
 interface ChampionIconProps {
@@ -22,7 +22,8 @@ export default function ChampionIcon({ champion, size, dead = false }: ChampionI
       return;
     }
 
-    import(`../../assets/champion/${champion}.png`).then((imageModule) => {
+    import(`../../assets/champion/${champion}.png`)
+      .then((imageModule) => {
         if (isMounted) {
           setImage(imageModule.default);
         }
@@ -34,7 +35,7 @@ export default function ChampionIcon({ champion, size, dead = false }: ChampionI
           if (isMounted) {
             setImage(imageModule.default);
           }
-        })
+        });
       });
 
     return () => {
@@ -56,12 +57,5 @@ export default function ChampionIcon({ champion, size, dead = false }: ChampionI
       break;
   }
 
-  return (
-    <img
-      src={image}
-      alt="Champion Icon"
-      title={champion}
-      className={`${classNameImageSize} ${dead && 'filter grayscale'} rounded-full`}
-    />
-  );
+  return <img src={image} alt="Champion Icon" title={champion} className={`${classNameImageSize} ${dead && 'filter grayscale'} rounded-full`} />;
 }
